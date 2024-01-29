@@ -10,7 +10,7 @@ const mongoose = require("mongoose");
 mongoose.set("strictQuery",false);
 
 async function main() {
-    await mongoose.connect("mongodb+srv://jv319069:<Lopera9912>@cluster0.gwomnic.mongodb.net/");
+    await mongoose.connect("mongodb+srv://jv319069:Lopera9912@cluster0.gwomnic.mongodb.net/");
     console.log("Conectado")
   }
   

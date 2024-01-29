@@ -10,11 +10,11 @@ router
 .get(getDrink)
 .post([
     check('name','Name is required').not().isEmpty(),
-    check('category','Category of disc is required').not().isEmpty(),
+    check('category','Category  is required').not().isEmpty(),
     check('price','Price is required').not().isEmpty(),
     check('name','Name is string').isString(),
     check('category','Category is string').isString(),
-    check('Price','Price is number').isInt(),
+    check('price','Price is number').isInt(),
     check('name').custom(existsName),
     validationFields
 ],addDrink);
@@ -29,7 +29,7 @@ router
     check('price','Price is required').not().isEmpty(),
     check('name','Name is string').isString(),
     check('category','Category is string').isString(),
-    check('Price','Price is number').isInt(),
+    check('price','Price is number').isInt(),
     check('name').custom(existsName),
     validationFields
 ],putDrink);  
