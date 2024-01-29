@@ -6,7 +6,7 @@ const {validationFields} = require("../middlewares/validate-fields");
 
 router
 .route("/")
-.get(getSong)
+.get(getMeal)
 .post([
     check('name','Name is required').not().isEmpty(),
     check('price','price is required').not().isEmpty(),
