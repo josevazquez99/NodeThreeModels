@@ -5,6 +5,7 @@ const cors = require("cors");
 const drinkRoutes = require("./routes/drink");
 const fruitRoutes = require("./routes/fruit");
 const mealRoutes = require("./routes/meal");
+const userRoutes=require("./routes/user");
 
 const mongoose = require("mongoose");
 mongoose.set("strictQuery",false);
@@ -22,6 +23,7 @@ app.use(morgan("tiny"))
 app.use('/drink', drinkRoutes);
 app.use('/fruit', fruitRoutes);
 app.use('/meal', mealRoutes);
+app.use('/user',userRoutes);
 
 app.listen(3000, () => {
     console.log("El servidor está escuchando en el puerto 3000");
