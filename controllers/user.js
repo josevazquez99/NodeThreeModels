@@ -1,68 +1,109 @@
 const User = require("../models/user");
-const bcrypt = require('bcrypt');
-const { validationResult } = require('express-validator');
-const { existsEmail, existsLogin } = require("../validators/db-validators");
+const bcryptjs = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
-const createUser = async (req, res) => {
-const errors = validationResult(req);
-
-if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-}
-  const {
-    name,
-    login,
-    email,
-    password,
-    rol,
-  } = req.body;
-
-try {
-    // Validaciones de existencia
-    await existsEmail(email, { req });
-    await existsLogin(login, { req });
-
-    // Hash de la contraseña
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
-    const newUser = new User({
-      name,
-      login,
-      email,
-      password: hashedPassword,
-      rol,
-      active: true,  
-    });
-
-    await newUser.save();
+const getUserById = async (req,res)=>{
+    let id = req.params.id;
+    try{
+      const user = await User.findById(id);
+      res.status(200).json(user);
+  
+    } catch (error){
+      res.status(500).json({message:error});
+    } 
     
-    res.status(201).json(newUser);
-} catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Error interno del servidor.' });
-  }
-};
+  };
+  
+  const getUser = async (req,res)=>{
+      try{
+        const users = await User.find();
+        res.status(200).json(users);
+    
+      } catch (error){
+        res.status(500).json({message:error});
+      } 
+      
+  };
+  
+  const addUser = async (req, res) => {
+      const {name,login,email,password} = req.body;
+      const salt = bcryptjs.genSaltSync();
+      encryptedPassword = bcryptjs.hashSync( password, salt);
+      const newUser = new User({name:name,login:login,email:email,password:encryptedPassword,role:"USER_ROLE",active:true});
+      
+      try{
+        await newUser.save();
+        res.status(201).json(newUser);
+    
+      } catch (error){
+        res.status(500).json({message:error});
+      }
+  };
+  
+  const deleteUser =async (req,res)=>{
+      let id = req.params.id;
+    
+      if(id){
+        try{
+          const user = await User.findByIdAndUpdate(id,{active:false});
+          res.status(204).json(user);
+      
+        } catch (error){
+          res.status(500).json({message:error});
+        } 
+      } else {
+        res.status(400).json({message:"Id no válida"});
+      }
+      
+  };
+  
+  const putUser = async (req,res)=>{
+      let id = req.params.id;
+      let {name,login,email,password,role,active} = req.body;
+      const salt = bcryptjs.genSaltSync();
+      encryptedPassword = bcryptjs.hashSync( password, salt);
+      if(id){
+        try{
+          const user = await User.findByIdAndUpdate(id,{name,login,email,password:encryptedPassword,role,active});
+          res.status(200).json(user);
+      
+        } catch (error){
+          res.status(500).json({message:error});
+        } 
+      } else {
+        res.status(400).json({message:"Id no válida"});
+      }
+      
+  };
 
-const deactivateUser = async (req, res) => {
-  const userId = req.params.id;
-
-  if (!userId) {
-    return res.status(400).json({ error: 'Id no válida' });
-  }
-
-  try {
-    const user = await User.findByIdAndUpdate(userId, { active: false });
-
-    if (!user) {
-      return res.status(404).json({ error: 'Usuario no encontrado.' });
+  const loginUser = async (req, res) => {
+    let {email,password} = req.body;
+    if(email && password){
+        try{
+            const user = await User.findOne({email});
+            let passValid = null;
+            if(user){
+              console.log(user)
+              passValid = bcryptjs.compareSync(password, user.password);
+             
+              const payload = {uid: user.id};
+              const token = jwt.sign(payload,process.env.SECRET
+                ,{expiresIn:'4h'});
+              if(passValid){
+                  res.status(200).json({
+                    user,
+                    token
+                  });
+              }else{
+                  res.status(400).json({message:"Data invalid."});
+              }
+            }
+        }catch(err){
+            console.log(err);
+            res.status(500).json({message:err});
+        }
+    }else{
+        res.status(400).json({message:"User not valid"});
     }
-
-    res.status(200).json({ message: 'Usuario desactivado exitosamente.' });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Error interno del servidor.' });
-  }
 };
-
-module.exports = { createUser, deactivateUser };
+module.exports = {addUser,deleteUser,getUser,getUserById,putUser,loginUser}

@@ -1,4 +1,5 @@
 const Meal = require("../models/meal");
+const User = require("../models/user");
 
 const existsName = async (name,{req}) => {
     const nameDb = await Meal.findOne({name});
@@ -8,7 +9,6 @@ const existsName = async (name,{req}) => {
     }
 }
 
-const User = require("../models/user");
 
 const existsEmail = async (email,{req}) => {
     const nameDb = await User.findOne({email});
@@ -25,6 +25,13 @@ const existsLogin = async (login,{req}) => {
         throw new Error(`Name ${login} already exists in database`);
     }
 }
+const checkPassword = async(password,{req}) => {
+    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    if(!regex.test(password)){
+        throw new Error(`Password ${password} not valdid`);
+    } 
+}
 
 
-module.exports={existsName,existsEmail,existsLogin};
+
+module.exports={existsName,existsEmail,existsLogin,checkPassword};

@@ -1,24 +1,55 @@
 const express = require("express");
 const router = express.Router();
-const { check } = require("express-validator");
-const { validationFields } = require("../middlewares/validate-fields");
-const { createUser, deactivateUser } = require('../controllers/user');
+const {getUser,addUser,deleteUser,putUser,getUserById,loginUser} = require('../controllers/user');
+const {check} = require("express-validator");
+const {validationFields} = require("../middlewares/validate-fields");
+const {validateJWT} = require("../middlewares/validate-jwt");
+const { existsLogin,existsEmail, checkPassword, existsUserById } = require("../helpers/db-validators");
+const { validateROL } = require("../middlewares/validate-rol");
 
 router
-  .route("/")
-  .post([
-    check('name', 'name is required').not().isEmpty(),
-    check('login', 'login is required').not().isEmpty(),
-    check('email', 'email is required').isEmail(),
-    check('password', 'password must be at least 8 characters long and contain at least one lowercase letter, one uppercase letter, one number, and one special character')
-      .isLength({ min: 8 })
-      .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/),
-    check('rol', 'rol is required').not().isEmpty(),
+.route("/")
+.get(getUser)
+.post([
+    check('name','Name is required').not().isEmpty(),
+    check('login','Login is required').not().isEmpty(),
+    check('email','Email is required').not().isEmpty(),
+    check('password','Password is required').not().isEmpty(),
+    check('name','Name is string').isString(),
+    check('login','Login is string').isString(),
+    check('email','Email is string').isString(),
+    check('password','Password is string').isString(),
+    check('password').custom(checkPassword),
+    check('login').custom(existsEmail),
+    check('email').custom(existsLogin),
     validationFields
-  ], createUser);
+],addUser);
 
 router
-  .route("/:id")
-  .delete(deactivateUser);
+.route("/:id")
+.get(getUserById)
+.delete([
+    validateROL,
+    validateJWT,
+    check('id','Id not valid').isMongoId(),
+    check('id').custom(existsUserById),
+    validationFields
+],deleteUser)
+.put([
+    check('name','Name is required').not().isEmpty(),
+    check('login','Login is required').not().isEmpty(),
+    check('email','Email is required').not().isEmpty(),
+    check('password','Password is required').not().isEmpty(),
+    check('name','Name is string').isString(),
+    check('login','Login is string').isString(),
+    check('email','Email is string').isString(),
+    check('password','Password is string').isString(),
+    check('password').custom(checkPassword),
+    check('login').custom(existsEmail),
+    check('email').custom(existsLogin),
+    validationFields
+],putUser);  
 
-module.exports = router;
+
+
+module.exports=router;
