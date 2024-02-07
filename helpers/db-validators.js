@@ -32,6 +32,11 @@ const checkPassword = async(password,{req}) => {
     } 
 }
 
+const existsUserById = async (id,{req}) => {
+    const idDb = await User.findOne({id});
+    if(idDb){
+        throw new Error(`Id ${id} not exist`);
+    }
+}
 
-
-module.exports={existsName,existsEmail,existsLogin,checkPassword};
+module.exports={existsName,existsEmail,existsLogin,checkPassword,existsUserById};
