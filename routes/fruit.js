@@ -15,7 +15,7 @@ router
     check('name','name is string').isString(),
     check('flavor','flavor is string').isString(),
     check('weight','weight is string').isString(),
-    check('Price','Price is number').isInt(),
+    check('price','Price is number').isInt(),
     //check('email').custom(existsEmail),
     validationFields
 ],addFruit);

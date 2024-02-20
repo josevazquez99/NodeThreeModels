@@ -1,4 +1,3 @@
-const Meal = require("../models/meal");
 const User = require("../models/user");
 
 const existsName = async (name,{req}) => {
